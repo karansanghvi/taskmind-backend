@@ -1,5 +1,5 @@
 const express = require('express');
-const SignupModel = require('../models/signupModel');  // Import the signup model
+const SignupModel = require('../models/signupModel'); 
 const router = express.Router();
 
 // Signup route handler
@@ -10,11 +10,17 @@ router.post('/signup', async (req, res) => {
     const newUser = new SignupModel({
       fullName,
       email,
-      password,  // You should hash the password before saving (e.g., using bcrypt)
+      password,  
     });
+
+    console.log('User data: ', newUser);
+
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'Account Created Successfully' });
   } catch (error) {
+
+    console.log('Error saving user: ', error);
+
     if (error.code === 11000) {
       res.status(400).json({ error: 'Email already exists' });
     } else {
