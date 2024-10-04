@@ -1,15 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
 // Import routes
 const signupRoute = require('./routes/signupRoute');
 const loginRoute = require('./routes/loginRoute');
+const profileRoute = require('./routes/profileRoute');
 
 const app = express();
-
-// Middleware
 
 // Configure CORS to allow specific origins
 app.use(cors({
@@ -21,11 +21,14 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://karansanghvi1303:En9HSsuNlCLTYANj@task-mind-db.cckr6.mongodb.net/?retryWrites=true&w=majority&appName=task-mind-db');
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('MongoDB Connected'))
+  .catch(err => console.error('MongoDB connection error: ', err));
 
-// Use the signup route
+// use imported routes
 app.use('/api', signupRoute); 
 app.use('/api', loginRoute);
+app.use('/api', profileRoute);
 
 // Start server
 const PORT = process.env.PORT || 5000;

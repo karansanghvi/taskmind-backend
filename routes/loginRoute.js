@@ -1,6 +1,10 @@
 const express = require('express');
-const SignupModel = require('../models/signupModel'); // Use SignupModel for login as well
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const SignupModel = require('../models/signupModel'); 
 const router = express.Router();
+
+dotenv.config();
 
 // Login route handler
 router.post('/login', async (req, res) => {
@@ -17,10 +21,17 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Incorrect password' });
     }
 
-    res.status(200).json({ message: 'Logged In Successfully' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    res.status(200).json({
+      token,
+      fullName: user.fullName,
+      email: user.email,
+      password: user.password
+    })
   } catch (error) {
     res.status(500).json({ error: 'Account Not Created. Signup.' });
   }
 });
+
 
 module.exports = router;
