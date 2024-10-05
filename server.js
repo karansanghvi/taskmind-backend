@@ -8,13 +8,14 @@ const bodyParser = require('body-parser');
 const signupRoute = require('./routes/signupRoute');
 const loginRoute = require('./routes/loginRoute');
 const profileRoute = require('./routes/profileRoute');
+const taskRoute = require('./routes/taskRoute');
 
 const app = express();
 
 // Configure CORS to allow specific origins
 app.use(cors({
   origin: 'http://localhost:3000',  
-  methods: ['GET', 'POST'],         
+  methods: ['GET', 'POST', 'DELETE', 'PATCH'],         
   credentials: true                 
 }));
 
@@ -29,6 +30,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api', signupRoute); 
 app.use('/api', loginRoute);
 app.use('/api', profileRoute);
+app.use('/api', taskRoute);
 
 // Start server
 const PORT = process.env.PORT || 5000;
