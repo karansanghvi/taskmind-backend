@@ -3,25 +3,21 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// Middleware to check JWT authentication
 const authMiddleware = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({
-            error: 'Unauthorized'
-        });
-    }
+  const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
-        if (err) {
-            return res.status(403).json({
-                error: 'Forbidden'
-            });
-        }
-        
-        console.log("User from token: ", user);
-        req.user = user;
-        next();
-    });
+  if (!token) {
+    return res.status(401).json({ error: 'Authorization denied. No token provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;  // Set the user ID from token payload
+    next();
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
 };
 
 module.exports = authMiddleware;

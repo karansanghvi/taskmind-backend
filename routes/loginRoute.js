@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const bcrypt = require('bcrypt');
 const SignupModel = require('../models/signupModel'); 
 const router = express.Router();
 
@@ -17,21 +18,22 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
 
-    if (user.password !== password) {
+    // Use bcrypt to compare entered password with hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(400).json({ error: 'Incorrect password' });
     }
 
+    // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
     res.status(200).json({
       token,
       fullName: user.fullName,
-      email: user.email,
-      password: user.password
-    })
+      email: user.email
+    });
   } catch (error) {
     res.status(500).json({ error: 'Account Not Created. Signup.' });
   }
 });
-
 
 module.exports = router;

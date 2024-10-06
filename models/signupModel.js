@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
-// Define the signup schema
-const SignupSchema = new mongoose.Schema({
+// Define the User schema
+const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: true,
@@ -23,6 +24,21 @@ const SignupSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Export the model
-const SignupModel = mongoose.model('Signup', SignupSchema);
-module.exports = SignupModel;
+// Hash the password before saving the user
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+});
+
+// Compare entered password with hashed password
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Create the User model
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
